@@ -5,15 +5,18 @@ bisect.scala
 
 object Bisect {
 
-  def findRoot(low: Double, high: Double)(f: Double => Double): Double = {
+  def findRoot(low: Double, high: Double)(f: Double => Double): Option[Double] = {
     @annotation.tailrec
-    def find(low: Double, high: Double): Double = {
+    def find(low: Double, high: Double): Option[Double] = {
       val flow = f(low)
       val fhigh = f(high)
-      if(flow * fhigh >= 0) 0
+
+      if(flow * fhigh >= 0) None
+
       val mid = (low + high) / 2
       val fmid = f(mid)
-      if(fmid == 0) mid
+
+      if(fmid == 0) Some(mid)
       else if(fmid * flow < 0) find(low, mid)
       else find(mid, high)
     }
