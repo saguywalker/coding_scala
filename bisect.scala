@@ -5,33 +5,43 @@ bisect.scala
 
 object Bisect {
 
-  def findRoot(low: Double, high: Double)(f: Double => Double): Option[Double] = {
+  //with epsilon
+  def findRootEp(low: Double, high: Double)(f: Double => Double): Double = {
     @annotation.tailrec
-    def find(low: Double, high: Double): Option[Double] = {
-      val flow = f(low)
-      val fhigh = f(high)
+    def findR(low: Double, flow: Double, high:Double, fhigh: Double, esp: Double = 1.0e-8): Double = {
+      val mid = (low + high) / 2
+      if(math.abs(high - low) < esp){
+        mid
+      }else{
+        val fmid = f(mid)
+        if(fmid == 0) mid
+        else if(flow * fmid < 0) findR(low, flow, mid, fmid)
+        else findR(mid, fmid, high, fhigh)
+      }
+    }
+    assert(low < high)
+    val flow = f(low)
+    val fhigh = f(high)
+    assert(flow * fhigh < 0.0)
+    findR(low, flow, high, fhigh, 1.0e-8)
+  }
 
-      if(flow * fhigh >= 0) None
-
+  //without epsilon
+  def findRoot(low: Double, high: Double)(f: Double => Double): Double = {
+    @annotation.tailrec
+    def findR(low: Double, flow: Double, high:Double, fhigh: Double): Double = {
       val mid = (low + high) / 2
       val fmid = f(mid)
-
-      if(fmid == 0) Some(mid)
-      else if(fmid * flow < 0) find(low, mid)
-      else find(mid, high)
+      if(fmid == 0) mid
+      else if(flow * fmid < 0) findR(low, flow, mid, fmid)
+      else findR(mid, fmid, high, fhigh)
     }
-
-    find(low, high)
+    assert(low < high)
+    val flow = f(low)
+    val fhigh = f(high)
+    assert(flow * fhigh < 0.0)
+    findR(low, flow, high, fhigh)
   }
-
-  def main(args: Array[String]): Unit = {
-    println(findRoot(-10 , 10)(x => x + 1))
-    println(findRoot(-5.0,10.0)(x => 2.0-x))
-    println(findRoot(0.0,5.0)(x => x-1.0))
-    println(findRoot(0.0,2.0)(x => (x+1.0)*(x-1.0)))
-    println(findRoot(-2.0,0.0)(x => (x+1.0)*(x-1.0)))
-  }
-
 
 }
 
