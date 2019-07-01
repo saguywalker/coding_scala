@@ -5,7 +5,6 @@ object ch1{
     val xs: Array[Int] = 1.to(10).toArray.reverse
     println(isSorted(xs, (x: Int, y: Int) => x <= y))
 
-
   }
 
   def fib(n: Int): Int = {
